@@ -1,0 +1,56 @@
+email: john.doe@example.com
+location: Location
+name: John Doe
+phone: +1-609-999-9995
+sections:
+  AboutMe:
+  - Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula
+    eget dolor
+  education:
+  - area: Computer Science
+    degree: PhD
+    end_date: present
+    grade: 4.0/4.0
+    highlights:
+    - Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula
+      eget dolor
+    institution: Stanford University
+    location: Stanford, CA, USA
+    start_date: 2023-09
+  experience:
+  - company: Company A
+    end_date: 2022-09
+    highlights:
+    - Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula
+      eget dolor
+    location: Istanbul, Türkiye
+    position: Summer Intern
+    start_date: 2022-06
+  projects:
+  - end_date: present
+    highlights:
+    - Launched an [iOS app](https://example.com) in 09/2024 that currently has 10k+
+      monthly active users
+    - The app is made open-source (3,000+ stars [on GitHub](https://github.com))
+    name: '[Example Project](https://example.com)'
+    start_date: 2024-05
+    summary: A web application for writing essays
+  publications:
+  - authors:
+    - John Doe
+    - Jane Smith
+    - Alice Johnson
+    date: 2004-01
+    doi: xxxxxxxx
+    title: An example publication
+    venue: IEEE Transactions on Applied Superconductivity
+  skills:
+  - details: Proficient with Python, C++, and Git; good understanding of Web, app
+      development, and DevOps
+    label: Programming
+  - details: 'English (fluent, TOEFL: 118/120))'
+    label: Languages
+social_networks:
+- network: LinkedIn
+  url: '[LinkedIn](https://linkedin.com/in/john.doe)'
+  username: john.doe

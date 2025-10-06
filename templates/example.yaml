@@ -1,0 +1,51 @@
+name: John Doe
+location: Location
+email: john.doe@example.com
+phone: +1-609-999-9995
+social_networks:
+  - network: LinkedIn
+    username: john.doe
+    url: "[LinkedIn](https://linkedin.com/in/john.doe)"
+sections:
+  AboutMe:
+    - "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor"
+  education:
+    - institution: Stanford University
+      location: Stanford, CA, USA
+      area: Computer Science
+      degree: PhD
+      start_date: 2023-09
+      end_date: present
+      grade: 4.0/4.0
+      highlights:
+        - Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor
+  experience:
+    - company: Company A
+      position: Summer Intern
+      location: Istanbul, Türkiye
+      start_date: 2022-06
+      end_date: 2022-09
+      highlights:
+        - Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor
+  projects:
+    - name: "[Example Project](https://example.com)"
+      start_date: 2024-05
+      end_date: present
+      summary: "A web application for writing essays"
+      highlights:
+        - "Launched an [iOS app](https://example.com) in 09/2024 that currently has 10k+ monthly active users"
+        - "The app is made open-source (3,000+ stars [on GitHub](https://github.com))"
+  skills:
+    - label: Programming
+      details: Proficient with Python, C++, and Git; good understanding of Web, app development, and DevOps
+    - label: Languages
+      details: "English (fluent, TOEFL: 118/120))"
+  publications:
+    - title: "An example publication"
+      venue: IEEE Transactions on Applied Superconductivity
+      authors:
+        - John Doe
+        - Jane Smith
+        - Alice Johnson
+      doi: xxxxxxxx
+      date: 2004-01
