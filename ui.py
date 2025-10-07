@@ -35,33 +35,14 @@ def render_data_editor(
 ) -> None:
     """Render the CV data editor view."""
 
-    st.markdown('<div class="main-header">CV Data Editor</div>', unsafe_allow_html=True)
-
     header_cols = st.columns(4)
-    header_cols[0].button(
-        "Save Data",
-        use_container_width=True,
-        key="btn_save_data",
-        on_click=callbacks.on_save,
-    )
-    header_cols[1].button(
+    header_cols[3].button(
         "Load Example Data",
         use_container_width=True,
         key="btn_load_example_editor",
         on_click=callbacks.on_load_example,
     )
-    header_cols[2].button(
-        "Delete All Data",
-        use_container_width=True,
-        key="btn_delete_data",
-        on_click=callbacks.on_delete,
-    )
-    header_cols[3].button(
-        "Preview CV",
-        use_container_width=True,
-        key="btn_preview_cv",
-        on_click=callbacks.on_open_preview,
-    )
+
 
     render_personal_info(cv_data, example_data)
     render_social_networks(cv_data, example_data)
@@ -69,6 +50,7 @@ def render_data_editor(
     render_education(cv_data, example_data)
     render_experience(cv_data, example_data)
     render_projects(cv_data, example_data)
+    render_publications(cv_data, example_data)
     render_skills(cv_data, example_data)
 
     st.markdown("---")
@@ -93,7 +75,7 @@ def render_personal_info(cv_data: Dict[str, Any], example_data: Dict[str, Any]) 
     st.markdown('<div class="section-header">Personal Information</div>', unsafe_allow_html=True)
     example = example_data or {}
 
-    col1, col2 = st.columns(2)
+    col1, col2, col3 = st.columns(3)
     with col1:
         cv_data["name"] = st.text_input(
             "Full Name",
@@ -101,24 +83,31 @@ def render_personal_info(cv_data: Dict[str, Any], example_data: Dict[str, Any]) 
             placeholder=example.get("name", "Your full name"),
             key="input_name",
         )
+        cv_data["role"] = st.text_input(
+            "Current Role",
+            value=cv_data.get("role", ""),
+            placeholder=example.get("role", "Software Engineer"),
+            key="input_role",
+        )
+    with col2:
         cv_data["email"] = st.text_input(
             "Email",
             value=cv_data.get("email", ""),
             placeholder=example.get("email", "your.email@example.com"),
             key="input_email",
         )
-    with col2:
-        cv_data["location"] = st.text_input(
-            "Location",
-            value=cv_data.get("location", ""),
-            placeholder=example.get("location", "City, Country"),
-            key="input_location",
-        )
         cv_data["phone"] = st.text_input(
             "Phone",
             value=cv_data.get("phone", ""),
             placeholder=example.get("phone", "+1 555 555 5555"),
             key="input_phone",
+        )
+    with col3:
+        cv_data["location"] = st.text_input(
+            "Location",
+            value=cv_data.get("location", ""),
+            placeholder=example.get("location", "City, Country"),
+            key="input_location",
         )
 
 
@@ -164,15 +153,26 @@ def render_social_networks(cv_data: Dict[str, Any], example_data: Dict[str, Any]
         socials.pop(remove_idx)
 
 
+def _normalize_section_key(sections: Dict[str, Any], preferred: str, legacy: str) -> List[Any]:
+    """Return a list for a section key, migrating legacy keys when needed."""
+
+    if preferred not in sections and legacy in sections:
+        sections[preferred] = sections.pop(legacy) or []
+    value = sections.setdefault(preferred, [])
+    if not isinstance(value, list):
+        value = [value] if value else []
+        sections[preferred] = value
+    return value
+
+
 def render_about_me(cv_data: Dict[str, Any], example_data: Dict[str, Any]) -> None:
     """Render About Me section."""
 
     st.markdown('<div class="section-header">About Me</div>', unsafe_allow_html=True)
     sections = cv_data.setdefault("sections", {})
-    about_list = sections.setdefault("AboutMe", [""])
-    example_about = "\n".join(
-        example_data.get("sections", {}).get("AboutMe", []) if example_data else []
-    )
+    about_list = _normalize_section_key(sections, "aboutme", "AboutMe")
+    example_sections = example_data.get("sections", {}) if example_data else {}
+    example_about = "\n".join(example_sections.get("aboutme") or example_sections.get("AboutMe") or [])
 
     about_text = st.text_area(
         "Personal description",
@@ -183,7 +183,7 @@ def render_about_me(cv_data: Dict[str, Any], example_data: Dict[str, Any]) -> No
     )
 
     cleaned = about_text.strip()
-    sections["AboutMe"] = [cleaned] if cleaned else []
+    sections["aboutme"] = [cleaned] if cleaned else []
 
 
 def render_education(cv_data: Dict[str, Any], example_data: Dict[str, Any]) -> None:
@@ -430,6 +430,77 @@ def render_projects(cv_data: Dict[str, Any], example_data: Dict[str, Any]) -> No
     if remove_idx is not None and 0 <= remove_idx < len(projects):
         projects.pop(remove_idx)
 
+def render_publications(cv_data: Dict[str, Any], example_data: Dict[str, Any]) -> None:
+    """Render publications section."""
+
+    st.markdown('<div class="section-header">Publications</div>', unsafe_allow_html=True)
+    sections = cv_data.setdefault("sections", {})
+    publications = _normalize_section_key(sections, "publications", "Publications")
+    example_sections = example_data.get("sections", {}) if example_data else {}
+    example_publications = example_sections.get("publications", [])
+
+    if st.button("Add Publication", key="btn_add_publication"):
+        publications.append(
+            {
+                "title": "",
+                "venue": "",
+                "authors": [],
+                "doi": "",
+                "date": "",
+            }
+        )
+
+    remove_idx: Optional[int] = None
+    for idx, pub in enumerate(publications):
+        with st.expander(f"Publication {idx + 1}", expanded=True):
+            example_item = example_publications[idx] if idx < len(example_publications) else {}
+            col1, col2 = st.columns([4, 1])
+            with col1:
+                pub["title"] = st.text_input(
+                    "Title",
+                    value=pub.get("title", ""),
+                    placeholder=example_item.get("title", ""),
+                    key=f"input_publication_title_{idx}",
+                )
+            with col2:
+                if st.button("Remove", key=f"btn_remove_publication_{idx}"):
+                    remove_idx = idx
+
+            col3, col4 = st.columns([3, 2])
+            with col3:
+                pub["venue"] = st.text_input(
+                    "Venue",
+                    value=pub.get("venue", ""),
+                    placeholder=example_item.get("venue", ""),
+                    key=f"input_publication_venue_{idx}",
+                )
+            with col4:
+                pub["date"] = st.text_input(
+                    "Date",
+                    value=pub.get("date", ""),
+                    placeholder=example_item.get("date", ""),
+                    key=f"input_publication_date_{idx}",
+                )
+
+            pub["doi"] = st.text_input(
+                "DOI or Identifier",
+                value=pub.get("doi", ""),
+                placeholder=example_item.get("doi", ""),
+                key=f"input_publication_doi_{idx}",
+            )
+
+            authors_text = st.text_area(
+                "Authors (one per line)",
+                value="\n".join(pub.get("authors", [])),
+                height=100,
+                placeholder="\n".join(example_item.get("authors", [])),
+                key=f"textarea_publication_authors_{idx}",
+            )
+            pub["authors"] = [line.strip() for line in authors_text.splitlines() if line.strip()]
+
+    if remove_idx is not None and 0 <= remove_idx < len(publications):
+        publications.pop(remove_idx)
+
 
 def render_skills(cv_data: Dict[str, Any], example_data: Dict[str, Any]) -> None:
     """Render skills section."""
@@ -473,56 +544,12 @@ def render_skills(cv_data: Dict[str, Any], example_data: Dict[str, Any]) -> None
 def render_cv_preview(
     cv_data: Dict[str, Any],
     example_data: Dict[str, Any],
-    callbacks: PreviewCallbacks,
+    _: PreviewCallbacks,
 ) -> None:
-    """Render the CV preview view."""
+    """Render an empty second tab as requested."""
 
-    st.markdown('<div class="main-header">CV Preview</div>', unsafe_allow_html=True)
-    preview_cols = st.columns(2)
-    preview_cols[0].button(
-        "Edit Data",
-        use_container_width=True,
-        key="btn_edit_data",
-        on_click=callbacks.on_edit,
-    )
-    preview_cols[1].button(
-        "Load Example Data",
-        use_container_width=True,
-        key="btn_load_example_preview",
-        on_click=callbacks.on_load_example,
-    )
-
-    st.markdown("---")
-    data_to_display = cv_data if cv_data else example_data
-
-    st.markdown("### Generate CV")
-    templates = get_available_templates()
-    template_paths = {item["name"]: item["path"] for item in templates}
-
-    selected_template = st.selectbox(
-        "Select a template",
-        options=list(template_paths.keys()),
-        key="select_template",
-    ) if templates else None
-
-    generated_html: Optional[str] = None
-    if templates and st.button("Generate CV", use_container_width=True, key="btn_generate_cv"):
-        template_path = template_paths[selected_template]
-        generated_html = generate_html_cv(data_to_display, template_path)
-        if generated_html:
-            st.success(f"CV successfully generated using the {selected_template} template!")
-            output_dir = Path("data") / "output"
-            output_dir.mkdir(parents=True, exist_ok=True)
-            output_file = output_dir / "cv.html"
-            output_file.write_text(generated_html, encoding="utf-8")
-            st.markdown(get_html_download_link(generated_html), unsafe_allow_html=True)
-            st.markdown("### CV Preview")
-            st.components.v1.html(generated_html, height=500, scrolling=True)
-        else:
-            st.error("It was not possible to generate the CV with the selected template.")
-
-    st.markdown("---")
-    render_compact_preview(data_to_display)
+    st.markdown("### Tab limpa")
+    st.write("Esta área foi deixada vazia conforme solicitado.")
 
 
 def render_compact_preview(data: Dict[str, Any]) -> None:
@@ -534,6 +561,8 @@ def render_compact_preview(data: Dict[str, Any]) -> None:
         return
 
     st.markdown(f"# {data.get('name', 'Your Name')}")
+    if data.get("role"):
+        st.markdown(f"### {data['role']}")
     contact_info = []
     if data.get("email"):
         contact_info.append(f"Email: {data['email']}")
@@ -553,7 +582,7 @@ def render_compact_preview(data: Dict[str, Any]) -> None:
     st.markdown("---")
     sections = data.get("sections", {})
 
-    about_me = sections.get("AboutMe", [])
+    about_me = sections.get("aboutme") or sections.get("AboutMe", [])
     if about_me:
         st.markdown("## About Me")
         for paragraph in about_me:
@@ -610,6 +639,27 @@ def render_compact_preview(data: Dict[str, Any]) -> None:
             for highlight in proj.get("highlights", []):
                 if highlight:
                     st.markdown(f"• {highlight}")
+            st.markdown("")
+
+    publications = sections.get("publications") or sections.get("Publications", [])
+    if publications:
+        st.markdown("## Publications")
+        for pub in publications:
+            if not pub.get("title"):
+                continue
+            title_line = f"**{pub['title']}**"
+            if pub.get("venue"):
+                title_line += f" — *{pub['venue']}*"
+            st.markdown(title_line)
+            meta_parts = []
+            if pub.get("date"):
+                meta_parts.append(pub["date"])
+            if pub.get("doi"):
+                meta_parts.append(f"DOI: {pub['doi']}")
+            if meta_parts:
+                st.markdown(", ".join(meta_parts))
+            if pub.get("authors"):
+                st.markdown("Authors: " + ", ".join(pub["authors"]))
             st.markdown("")
 
     skills = sections.get("skills", [])

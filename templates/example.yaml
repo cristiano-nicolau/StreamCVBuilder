@@ -2,12 +2,13 @@ name: John Doe
 location: Location
 email: john.doe@example.com
 phone: +1-609-999-9995
+role: Software Engineer
 social_networks:
   - network: LinkedIn
     username: john.doe
     url: "[LinkedIn](https://linkedin.com/in/john.doe)"
 sections:
-  AboutMe:
+  aboutme:
     - "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor"
   education:
     - institution: Stanford University

@@ -4,6 +4,7 @@ import copy
 from typing import Optional, Tuple
 
 import streamlit as st
+from streamlit_option_menu import option_menu
 
 from ui import EditorCallbacks, PreviewCallbacks, render_cv_preview, render_data_editor
 from utils.yaml_utils import load_example_data, load_user_data, save_user_data
@@ -15,7 +16,7 @@ DATA_KEY = "cv_data"
 EXAMPLE_KEY = "example_data"
 FEEDBACK_KEY = "app_feedback"
 DEFAULT_VIEW = "Data Editor"
-PREVIEW_VIEW = "CV Preview"
+PREVIEW_VIEW = "CV Generator"
 CUSTOM_CSS = """
 <style>
     .main-header {
@@ -39,6 +40,25 @@ CUSTOM_CSS = """
     }
     button.st-emotion-cache-19rxjzo.ef3psqc11 {
         background-color: #2ecc71;
+    }
+    div[data-testid="stHorizontalBlock"] .nav.nav-pills {
+        justify-content: center;
+        margin-bottom: 1.5rem;
+    }
+    .nav.nav-pills .nav-link {
+        border-radius: 0;
+        margin: 0 0.4rem;
+        padding: 0.6rem 1.4rem;
+        font-weight: 600;
+        color: #2c3e50;
+        border: 1px solid #3498db33;
+        background-color: #f0f3f7;
+    }
+    .nav.nav-pills .nav-link.active {
+        background-color: #3498db;
+        color: #fff;
+        border-color: #3498db;
+        box-shadow: 0 4px 12px rgba(52, 152, 219, 0.35);
     }
 </style>
 """
@@ -103,17 +123,29 @@ def handle_change_view(view: str) -> None:
 
     st.session_state[NAV_KEY] = view
 
-def render_sidebar_navigation() -> None:
-    """Render navigation controls inside the sidebar."""
+def render_tab_navigation() -> None:
+    """Render the top-level tab navigation."""
 
     options = [DEFAULT_VIEW, PREVIEW_VIEW]
     default_index = options.index(st.session_state[NAV_KEY])
-    selected_view = st.sidebar.radio(
-        "Navigation",
-        options=options,
-        index=default_index,
-        key="sidebar_navigation",
+    selected_view = option_menu(
+        None,
+        options,
+        icons=["pencil-square", "file-earmark-text"],
+        menu_icon="list",
+        default_index=default_index,
+        orientation="horizontal",
+        styles={
+            "container": {"padding": "0", "background-color": "transparent"},
+            "nav-link": {"text-align": "center"},
+            "nav-link-selected": {
+                "background-color": "#4D4F51",
+                "color": "white",
+            },
+        },
+        key="main_navigation",
     )
+
     if selected_view != st.session_state[NAV_KEY]:
         handle_change_view(selected_view)
 
@@ -123,7 +155,10 @@ def main() -> None:
     configure_page()
     ensure_session_state()
     display_feedback()
-    render_sidebar_navigation()
+    st.markdown("## CV Generator")
+    st.markdown("Create and preview your CV with ease.")
+    st.markdown("Put your data in the editor tab and see the formatted CV in the preview tab.")
+    render_tab_navigation()
 
     editor_callbacks = EditorCallbacks(
         on_save=handle_save,
