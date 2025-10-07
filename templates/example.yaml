@@ -29,7 +29,8 @@ sections:
       highlights:
         - Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor
   projects:
-    - name: "[Example Project](https://example.com)"
+    - name: "Example Project"
+      url: "https://example.com"
       start_date: 2024-05
       end_date: present
       summary: "A web application for writing essays"
