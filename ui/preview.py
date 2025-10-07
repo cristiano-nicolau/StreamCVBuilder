@@ -7,6 +7,7 @@ import streamlit as st
 
 from .callbacks import PreviewCallbacks
 from .templates import generate_html_cv, get_available_templates
+from .pdf_generator import generate_pdf_bytes, html_to_pdf_bytes
 
 
 def render_cv_preview(
@@ -27,7 +28,7 @@ def render_cv_preview(
     templates = get_available_templates()
     template_names = [t["name"] for t in templates]
     
-    col1, col2 = st.columns([1, 1])
+    col1, col2 = st.columns([1, 3])
     
     with col1:
         selected_template = st.selectbox("Choose a template", template_names, key="template_selector")
@@ -123,7 +124,7 @@ def render_cv_preview(
             with col_btn1:
                 generate_html = st.button("Generate HTML", use_container_width=True, type="primary")
             with col_btn2:
-                generate_pdf = st.button("Print PDF", use_container_width=True)
+                generate_pdf = st.button("Generate PDF", use_container_width=True)
     
     with col2:
         st.markdown("<h3 style='text-align: center;'>Template Preview</h3>", unsafe_allow_html=True)
@@ -177,21 +178,15 @@ def render_cv_preview(
             )
         
         if generate_pdf:
-            html_with_print = html_content + """
-<script>
-    window.onload = function() {
-        setTimeout(function() { window.print(); }, 500);
-    };
-</script>
-"""
-            st.success("Download the HTML file below and open it in your browser")
-            st.info("💡 The print dialog will open automatically. Choose 'Save as PDF' as the destination.")
-            
-            st.download_button(
-                label="📄 Download & Print to PDF",
-                data=html_with_print,
-                file_name="cv_print.html",
-                mime="text/html",
-                use_container_width=True,
-                type="primary"
-            )
+            # Prefer generating PDF from the rendered HTML of the selected template
+            pdf_bytes = html_to_pdf_bytes(html_content)
+            if pdf_bytes:
+                st.success("PDF generated successfully!")
+                b64_pdf = base64.b64encode(pdf_bytes).decode()
+                st.markdown(
+                    f'<a href="data:application/pdf;base64,{b64_pdf}" download="cv.pdf" style="display: inline-block; padding: 0.5rem 1rem; background-color: #0066cc; color: white; text-decoration: none; border-radius: 4px; font-weight: 500;">Download PDF</a>',
+                    unsafe_allow_html=True
+                )
+            else:
+                st.error("Failed to convert HTML to PDF. Try a simpler template or export HTML.")
+
