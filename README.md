@@ -1,72 +1,111 @@
 # StreamCVBuilder
 
-Um gerador automático de currículos usando Streamlit, YAML e JSON.
+A modern, interactive CV builder powered by Streamlit. Create professional resumes with beautiful templates, granular content control, and instant preview.
 
-## 🚀 Funcionalidades
+## Features
 
-- **Interface intuitiva** - Interface web com Streamlit
-- **Templates flexíveis** - Seções configuráveis via YAML
-- **Dados estruturados** - Armazenamento em JSON
-- **Export PDF** - Geração automática de PDFs profissionais
-- **Templates múltiplos** - Diferentes estilos de currículo
+- **Interactive Editor** - User-friendly web interface with tabbed navigation
+- **Multiple Templates** - Choose from 4 professional CV designs (Clean, Professional, Modern, Sidebar)
+- **Live Preview** - See your CV update in real-time as you edit
+- **Granular Control** - Select exactly which items to include from each section
+- **Easy Export** - Generate HTML or PDF
+- **Data Persistence** - Your CV data is automatically saved locally
+- **Example Data** - Start quickly with pre-filled example content
 
-## 📁 Estrutura do Projeto
+## Getting Started
 
-```
-/StreamCVBuilder
-├── src/
-│   ├── streamlit_app.py      # Aplicação principal
-│   ├── cv_generator.py       # Lógica de geração de CV
-│   ├── pdf_export.py         # Exportação para PDF
-│   └── utils/
-│       ├── data_manager.py   # Gestão de dados JSON
-│       └── template_loader.py # Carregamento de templates
-├── templates/
-│   ├── sections.yaml         # Definição das seções
-│   ├── cv_templates/         # Templates de CV
-│   └── styles/               # CSS para templates
-├── data/
-│   ├── user_profiles/        # Perfis de usuário
-│   └── projects/             # Projetos salvos
-├── assets/
-│   └── images/              # Imagens e ícones
-└── docs/
-    └── examples/            # Exemplos de uso
-```
+### Prerequisites
 
-## 🛠️ Instalação
+- Python 3.8 or higher
+- pip package manager
 
-1. Clone o repositório:
+### Installation
+
+1. **Clone the repository**
 ```bash
 git clone https://github.com/cristiano-nicolau/StreamCVBuilder.git
 cd StreamCVBuilder
 ```
 
-2. Instale as dependências:
+2. **Install dependencies**
 ```bash
 pip install -r requirements.txt
 ```
 
-3. Execute a aplicação:
+3. **Run the application**
 ```bash
-streamlit run src/streamlit_app.py
+streamlit run main.py
 ```
 
-## 📖 Como Usar
+The app will open in your default browser at `http://localhost:8501`
 
-1. **Configurar Perfil** - Adicione suas informações pessoais
-2. **Escolher Seções** - Selecione as seções que deseja incluir
-3. **Preencher Dados** - Complete as informações de cada seção
-4. **Escolher Template** - Selecione o design do currículo
-5. **Gerar PDF** - Exporte seu currículo profissional
+you also use the cloud version at **https://streamcvbuilder.streamlit.app/**, this version does not save your data locally, so every time you open it you will have to fill in your data again.
 
-## 🎨 Templates Disponíveis
+## How to Use
 
-- **Moderno** - Design clean e minimalista
-- **Clássico** - Formato tradicional
-- **Criativo** - Para áreas criativas
-- **Técnico** - Para áreas de tecnologia
+1. **Fill in your data** - Navigate to the "Data Editor" tab and enter your information:
+   - Personal details (name, role, contact info)
+   - Social networks (LinkedIn, GitHub, etc.)
+   - About me summary
+   - Education history
+   - Work experience
+   - Projects
+   - Publications
+   - Skills
 
-## 📄 Licença
+2. **Generate your CV** - Switch to the "CV Generator" tab:
+   - Choose a template from the dropdown
+   - Select which sections and specific items to include
+   - Preview your CV in real-time
 
-MIT License - veja [LICENSE](LICENSE) para detalhes.
+3. **Export** - Click to generate:
+   - **HTML** - Download a standalone HTML file
+   - **PDF** - Download a PDF version of your CV
+
+## Project Structure
+
+```
+StreamCVBuilder/
+├── main.py                    # Application entry point
+├── requirements.txt           # Python dependencies
+├── ui/                        # UI module (modular architecture)
+│   ├── __init__.py           # Module interface
+│   ├── callbacks.py          # Callback dataclasses
+│   ├── editor_sections.py    # All CV section editors
+│   ├── preview.py            # Preview and export logic
+│   └── templates.py          # Template management utilities
+├── utils/                     # Utility modules
+│   ├── __init__.py
+│   └── yaml_utils.py         # YAML data loading/saving
+├── templates/                 # CV templates
+│   ├── cv_template.html      # Standard template
+│   ├── example.yaml          # Example CV data
+│   └── cv_templates/         # Additional templates
+│       ├── clean.html        # Clean modern design
+│       ├── professional.html # Professional layout
+│       ├── modern.html       # Gradient header design
+│       └── sidebar.html      # Two-column sidebar layout
+└── data/                      # Data storage
+    └── user_cv_data.yaml     # Your CV data (auto-created)
+```
+
+## Available Templates
+
+- **Clean** - Ultra-modern minimalist design (recommended)
+- **Professional** - Clean layout with left-aligned header
+- **Modern** - Gradient header with contemporary styling
+- **Creative** - Colorful design for creative fields
+- **Dark** - Dark theme for a bold look
+- **Sidebar** - Two-column layout with sidebar
+
+## Technologies
+
+- **Streamlit** - Web application framework
+- **Jinja2** - HTML template rendering
+- **PyYAML** - YAML data handling
+- **streamlit-option-menu** - Enhanced navigation component
+
+
+## Contributing
+
+Contributions are welcome! Feel free to open issues or submit pull requests.
