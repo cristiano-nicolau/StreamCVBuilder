@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ name }} - Resume</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', 'Roboto', sans-serif;
+            line-height: 1.55;
+            color: #1f2937;
+            max-width: 210mm;
+            margin: 0 auto;
+            padding: 12mm 15mm;
+            background: #ffffff;
+            font-size: 10.5pt;
+        }
+        
+        .header {
+            margin-bottom: 24px;
+        }
+        
+        .header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: #111827;
+            margin-bottom: 4px;
+            letter-spacing: -0.3px;
+        }
+        
+        .header .role {
+            font-size: 15px;
+            color: #6b7280;
+            margin-bottom: 12px;
+            font-weight: 500;
+        }
+        
+        .contact-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px 16px;
+            font-size: 10pt;
+            color: #6b7280;
+            margin-bottom: 6px;
+        }
+        
+        .contact-row span {
+            display: flex;
+            align-items: center;
+        }
+        
+        .divider {
+            color: #d1d5db;
+            margin: 0 4px;
+        }
+        
+        .links-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            font-size: 10pt;
+        }
+        
+        .links-row a {
+            color: #3b82f6;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .links-row a:hover {
+            text-decoration: underline;
+        }
+        
+        .section {
+            margin-top: 20px;
+        }
+        
+        .section-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: #111827;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            margin-bottom: 12px;
+            padding-bottom: 4px;
+            border-bottom: 1.5px solid #e5e7eb;
+        }
+        
+        .entry {
+            margin-bottom: 16px;
+            page-break-inside: avoid;
+        }
+        
+        .entry-title-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 2px;
+        }
+        
+        .entry-title {
+            font-size: 11.5pt;
+            font-weight: 600;
+            color: #111827;
+        }
+        
+        .entry-title a {
+            color: #111827;
+            text-decoration: none;
+            border-bottom: 1px solid #3b82f6;
+        }
+        
+        .entry-title a:hover {
+            color: #3b82f6;
+        }
+        
+        .entry-date {
+            color: #6b7280;
+            font-size: 9.5pt;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+        
+        .entry-subtitle {
+            color: #4b5563;
+            font-size: 10pt;
+            margin-bottom: 6px;
+        }
+        
+        .entry-content {
+            font-size: 10pt;
+            color: #374151;
+            line-height: 1.5;
+            margin-top: 6px;
+        }
+        
+        .highlights {
+            list-style: none;
+            padding-left: 0;
+            margin-top: 6px;
+        }
+        
+        .highlights li {
+            padding-left: 14px;
+            margin-bottom: 4px;
+            position: relative;
+            font-size: 10pt;
+            color: #374151;
+            line-height: 1.5;
+        }
+        
+        .highlights li:before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            color: #3b82f6;
+            font-weight: bold;
+        }
+        
+        .skills-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+        }
+        
+        .skill-item {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .skill-label {
+            font-weight: 600;
+            color: #111827;
+            font-size: 10pt;
+            min-width: 100px;
+        }
+        
+        .skill-details {
+            color: #4b5563;
+            font-size: 10pt;
+            line-height: 1.5;
+        }
+        
+        @media print {
+            body {
+                padding: 8mm 12mm;
+            }
+            .section {
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>{{ name }}</h1>
+        {% if role %}
+        <div class="role">{{ role }}</div>
+        {% endif %}
+        <div class="contact-row">
+            {% if email %}<span>{{ email }}</span>{% endif %}
+            {% if phone and email %}<span class="divider">•</span>{% endif %}
+            {% if phone %}<span>{{ phone }}</span>{% endif %}
+            {% if location and (email or phone) %}<span class="divider">•</span>{% endif %}
+            {% if location %}<span>{{ location }}</span>{% endif %}
+        </div>
+        {% if social_networks %}
+        <div class="links-row">
+            {% for social in social_networks %}
+                {% if social.url %}
+                <a href="{{ social.url }}" target="_blank">{{ social.network }}</a>
+                {% endif %}
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+
+    {% if sections.aboutme %}
+    <div class="section">
+        <div class="section-title">Summary</div>
+        {% for paragraph in sections.aboutme %}
+            {% if paragraph %}
+            <p class="entry-content">{{ paragraph }}</p>
+            {% endif %}
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if sections.experience %}
+    <div class="section">
+        <div class="section-title">Experience</div>
+        {% for exp in sections.experience %}
+        <div class="entry">
+            <div class="entry-title-row">
+                <div class="entry-title">{{ exp.position }}</div>
+                <div class="entry-date">{{ exp.start_date }} — {{ exp.end_date }}</div>
+            </div>
+            <div class="entry-subtitle">{{ exp.company }}{% if exp.location %} • {{ exp.location }}{% endif %}</div>
+            {% if exp.highlights %}
+            <ul class="highlights">
+                {% for highlight in exp.highlights %}
+                <li>{{ highlight }}</li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if sections.education %}
+    <div class="section">
+        <div class="section-title">Education</div>
+        {% for edu in sections.education %}
+        <div class="entry">
+            <div class="entry-title-row">
+                <div class="entry-title">{{ edu.degree }} in {{ edu.area }}</div>
+                <div class="entry-date">{{ edu.start_date }} — {{ edu.end_date }}</div>
+            </div>
+            <div class="entry-subtitle">{{ edu.institution }}{% if edu.location %} • {{ edu.location }}{% endif %}{% if edu.grade %} • {{ edu.grade }}{% endif %}</div>
+            {% if edu.highlights %}
+            <ul class="highlights">
+                {% for highlight in edu.highlights %}
+                <li>{{ highlight }}</li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if sections.projects %}
+    <div class="section">
+        <div class="section-title">Projects</div>
+        {% for project in sections.projects %}
+        <div class="entry">
+            <div class="entry-title-row">
+                {% if project.url %}
+                <div class="entry-title"><a href="{{ project.url }}" target="_blank">{{ project.name }}</a></div>
+                {% else %}
+                <div class="entry-title">{{ project.name }}</div>
+                {% endif %}
+                <div class="entry-date">{{ project.start_date }} — {{ project.end_date }}</div>
+            </div>
+            {% if project.summary %}
+            <p class="entry-content">{{ project.summary }}</p>
+            {% endif %}
+            {% if project.highlights %}
+            <ul class="highlights">
+                {% for highlight in project.highlights %}
+                <li>{{ highlight }}</li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if sections.publications %}
+    <div class="section">
+        <div class="section-title">Publications</div>
+        {% for pub in sections.publications %}
+        <div class="entry">
+            <div class="entry-title">{{ pub.title }}</div>
+            <div class="entry-subtitle">
+                {% if pub.venue %}{{ pub.venue }}{% endif %}
+                {% if pub.venue and pub.date %} • {% endif %}
+                {% if pub.date %}{{ pub.date }}{% endif %}
+            </div>
+            {% if pub.authors %}
+            <div class="entry-content">{{ pub.authors | join(', ') }}</div>
+            {% endif %}
+            {% if pub.doi %}
+            <div style="margin-top: 2px; color: #6b7280; font-size: 9.5pt;">DOI: {{ pub.doi }}</div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if sections.skills %}
+    <div class="section">
+        <div class="section-title">Skills</div>
+        <div class="skills-container">
+            {% for skill in sections.skills %}
+            <div class="skill-item">
+                <div class="skill-label">{{ skill.label }}:</div>
+                <div class="skill-details">{{ skill.details }}</div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</body>
+</html>
