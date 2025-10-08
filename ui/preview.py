@@ -7,7 +7,7 @@ import streamlit as st
 
 from .callbacks import PreviewCallbacks
 from .templates import generate_html_cv, get_available_templates
-from .pdf_generator import generate_pdf_bytes, html_to_pdf_bytes
+from .pdf_generator import html_to_pdf_bytes
 
 
 def render_cv_preview(
