@@ -10,6 +10,8 @@ class EditorCallbacks:
     on_load_example: Callable[[], None]
     on_delete: Callable[[], None]
     on_open_preview: Callable[[], None]
+    on_download: Callable[[], None]
+    on_upload: Callable[[], None]
 
 
 @dataclass(frozen=True)
