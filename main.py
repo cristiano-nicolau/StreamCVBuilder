@@ -93,6 +93,8 @@ def display_feedback() -> None:
 
     level, message = feedback
     st.session_state[FEEDBACK_KEY] = None
+    st.toast(message, icon="✅" if level == "success" else "⚠️" if level == "warning" else "ℹ️")
+
     notifier = getattr(st, level, st.info)
     notifier(message)
 
