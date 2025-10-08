@@ -6,11 +6,8 @@ from typing import Optional, Tuple
 import streamlit as st
 from streamlit_option_menu import option_menu
 
-import io
-import base64
-import yaml
 from ui import EditorCallbacks, PreviewCallbacks, render_cv_preview, render_data_editor
-from utils.yaml_utils import load_example_data, dump_yaml_to_string, load_yaml_from_file
+from utils.yaml_utils import load_example_data, load_user_data, save_user_data
 
 APP_TITLE = "CV Builder"
 PAGE_ICON = "📄"
@@ -77,7 +74,8 @@ def ensure_session_state() -> None:
 
     st.session_state.setdefault(EXAMPLE_KEY, load_example_data() or {})
     if DATA_KEY not in st.session_state:
-        st.session_state[DATA_KEY] = {}
+        stored = load_user_data()
+        st.session_state[DATA_KEY] = stored if stored else {}
     st.session_state.setdefault(NAV_KEY, DEFAULT_VIEW)
     st.session_state.setdefault(FEEDBACK_KEY, None)
 
@@ -95,18 +93,17 @@ def display_feedback() -> None:
 
     level, message = feedback
     st.session_state[FEEDBACK_KEY] = None
-
-    # Show a toast notification first
-    st.toast(message, icon="✅" if level == "success" else "⚠️" if level == "warning" else "ℹ️")
-
-    # Then show the regular feedback message
     notifier = getattr(st, level, st.info)
     notifier(message)
 
 def handle_save() -> None:
-    """Save current CV data to session state."""
-    # This function is no longer used but kept for compatibility
-    pass
+    """Persist current CV data to disk."""
+
+    success = save_user_data(st.session_state[DATA_KEY])
+    if success:
+        push_feedback("success", "Data saved successfully.")
+    else:
+        push_feedback("error", "Unable to save data. Please try again.")
 
 def handle_load_example() -> None:
     """Replace current data with the example dataset."""
@@ -114,54 +111,11 @@ def handle_load_example() -> None:
     st.session_state[DATA_KEY] = copy.deepcopy(st.session_state.get(EXAMPLE_KEY, {}))
     push_feedback("info", "Example data loaded.")
 
-def handle_download() -> None:
-    """Download current CV data as YAML file."""
-    data = st.session_state.get(DATA_KEY, {})
-    # Consider data empty if all fields are empty or lists are empty
-    def is_data_empty(data):
-        if not data:
-            return True
-        for k, v in data.items():
-            if isinstance(v, dict):
-                if not is_data_empty(v):
-                    return False
-            elif isinstance(v, list):
-                if any(v):
-                    return False
-            elif v not in ("", None):
-                return False
-        return True
-
-    if is_data_empty(data):
-        data = copy.deepcopy(st.session_state.get(EXAMPLE_KEY, {}))
-
-    yaml_str = dump_yaml_to_string(data)
-    st.download_button(
-        label="Download CV Data",
-        data=yaml_str,
-        file_name="cv_data.yaml",
-        mime="application/x-yaml",
-        use_container_width=True
-    )
-
-def handle_upload() -> None:
-    """Upload CV data from YAML file."""
-    uploaded_file = st.file_uploader("Choose a YAML file", type=['yaml', 'yml'], key="cv_data_upload")
-    if uploaded_file is not None:
-        data = load_yaml_from_file(uploaded_file)
-        if data:
-            # primeiro elimina tudo
-            st.session_state[DATA_KEY] = {}
-            st.session_state[DATA_KEY] = data
-            st.session_state['show_upload_modal'] = False
-            push_feedback("success", "Data uploaded successfully.")
-            st.rerun()
-        else:
-            push_feedback("error", "Unable to load uploaded file. Please check the file format.")
-
 def handle_delete_all() -> None:
-    """Clear all data from session state."""
+    """Clear all data from session and persistent storage."""
+
     st.session_state[DATA_KEY] = {}
+    save_user_data({})
     push_feedback("success", "All data has been removed.")
 
 def handle_change_view(view: str) -> None:
@@ -211,8 +165,6 @@ def main() -> None:
         on_load_example=handle_load_example,
         on_delete=handle_delete_all,
         on_open_preview=lambda: handle_change_view(PREVIEW_VIEW),
-        on_download=handle_download,
-        on_upload=handle_upload,
     )
 
     preview_callbacks = PreviewCallbacks(
