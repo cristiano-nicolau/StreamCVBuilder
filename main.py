@@ -9,7 +9,7 @@ from streamlit_option_menu import option_menu
 from ui import EditorCallbacks, PreviewCallbacks, render_cv_preview, render_data_editor
 from utils.yaml_utils import load_example_data, load_user_data, save_user_data
 
-APP_TITLE = "CV Generator"
+APP_TITLE = "CV Builder"
 PAGE_ICON = "📄"
 NAV_KEY = "view_mode"
 DATA_KEY = "cv_data"
@@ -155,9 +155,9 @@ def main() -> None:
     configure_page()
     ensure_session_state()
     display_feedback()
-    st.markdown("## CV Generator")
-    st.markdown("Create and preview your CV with ease.")
-    st.markdown("Put your data in the editor tab and see the formatted CV in the preview tab.")
+    st.markdown("## " + APP_TITLE, unsafe_allow_html=True)
+    st.markdown("Create and customize your CV using predefined templates.")
+    st.markdown("Put your data in the editor tab and generate a preview or download your CV in the CV Generator tab.")
     render_tab_navigation()
 
     editor_callbacks = EditorCallbacks(

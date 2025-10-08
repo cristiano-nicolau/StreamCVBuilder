@@ -92,10 +92,9 @@ StreamCVBuilder/
 ## Available Templates
 
 - **Clean** - Ultra-modern minimalist design (recommended)
+- **Standard** - Clean layout with centered header
 - **Professional** - Clean layout with left-aligned header
-- **Modern** - Gradient header with contemporary styling
-- **Creative** - Colorful design for creative fields
-- **Dark** - Dark theme for a bold look
+- **Creative** - Gradient header with contemporary styling
 - **Sidebar** - Two-column layout with sidebar
 
 ## Technologies
@@ -103,7 +102,6 @@ StreamCVBuilder/
 - **Streamlit** - Web application framework
 - **Jinja2** - HTML template rendering
 - **PyYAML** - YAML data handling
-- **streamlit-option-menu** - Enhanced navigation component
 
 
 ## Contributing

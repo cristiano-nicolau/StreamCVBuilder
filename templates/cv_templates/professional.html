@@ -191,10 +191,12 @@
 </head>
 <body>
     <div class="header">
-        <h1>{{ name }}</h1>
-        {% if role %}
-        <div class="role">{{ role }}</div>
-        {% endif %}
+        <div style="display: flex; align-items: baseline; justify-content: space-between;">
+            <h1>{{ name }}</h1>
+            {% if role %}
+            <div class="role">{{ role }}</div>
+            {% endif %}
+        </div>
         <div class="contact-info">
             {% if email %}<span>{{ email }}</span>{% endif %}
             {% if phone %}<span>{{ phone }}</span>{% endif %}

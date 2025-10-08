@@ -20,6 +20,7 @@
             margin-bottom: 5px;
             border-bottom: 2px solid #3498db;
             padding-bottom: 5px;
+            text-align: center;
         }
         
         h2 {
@@ -107,7 +108,12 @@
 </head>
 <body>
     <header>
-        <h1>{{ name }}</h1>
+       {% if role %}
+         <h1>{{ name }} - {{ role }}</h1>
+        {% else %}
+         <h1>{{ name }}</h1>
+        {% endif %}
+
         <div class="info">
             <div>
                 {% if email %}<p>Email: {{ email }}</p>{% endif %}
