@@ -37,8 +37,22 @@ def render_cv_preview(
         st.markdown("### Select Content to Include")
         
         sections_data = data_to_use.get("sections", {})
+        network_data = data_to_use.get("social_networks", [])
         
         include_aboutme = st.checkbox("About Me", value=bool(sections_data.get("aboutme")), key="include_aboutme")
+
+        if network_data:
+            include_network = st.checkbox(f"Network ({len(network_data)} items)", value=True, key="include_network")
+            selected_network_indices = []
+            if include_network:
+                with st.expander("Select specific network items"):
+                    for idx, net in enumerate(network_data):
+                        net_label = f"{net.get('label', 'Label')}: {net.get('url', 'URL')}"
+                        if st.checkbox(net_label, value=True, key=f"net_select_{idx}"):
+                            selected_network_indices.append(idx)
+        else:
+            include_network = False
+            selected_network_indices = []    
         
         experience_list = sections_data.get("experience", [])
         if experience_list:
@@ -135,6 +149,9 @@ def render_cv_preview(
         if include_aboutme and sections_data.get("aboutme"):
             filtered_sections["aboutme"] = sections_data["aboutme"]
         
+        if include_network and selected_network_indices:
+            filtered_sections["network"] = [network_data[i] for i in selected_network_indices]
+
         if include_experience and selected_experience_indices:
             filtered_sections["experience"] = [experience_list[i] for i in selected_experience_indices]
         
@@ -178,7 +195,6 @@ def render_cv_preview(
             )
         
         if generate_pdf:
-            # Prefer generating PDF from the rendered HTML of the selected template
             pdf_bytes = html_to_pdf_bytes(html_content)
             if pdf_bytes:
                 st.success("PDF generated successfully!")

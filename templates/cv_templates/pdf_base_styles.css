@@ -1,0 +1,78 @@
+@page {
+  size: A4;
+  margin: 15mm; 
+}
+
+html, body {
+  background: #ffffff !important;
+}
+
+body {
+  font-size: 9.5pt !important;    
+  line-height: 1.35 !important;    
+  padding: 0 !important;          
+}
+
+
+.container {
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  background: #ffffff !important;
+}
+
+h1, .header h1 { margin: 0 0 6px 0 !important; line-height: 1.15 !important; }
+h2, .section-title { margin: 8px 0 6px 0 !important; line-height: 1.2 !important; page-break-after: avoid; }
+h3 { margin: 6px 0 4px 0 !important; line-height: 1.2 !important; }
+
+.header { margin-bottom: 14px !important; }
+.section { margin: 12px 0 14px 0 !important; page-break-inside: avoid; }
+.entry, .item { margin-bottom: 10px !important; page-break-inside: avoid; }
+
+ul { margin: 6px 0 0 14px !important; padding-left: 14px !important; }
+li, .highlights li { margin: 3px 0 !important; line-height: 1.4 !important; }
+
+p, .entry-content, .item-description, .skill-details, .entry-subtitle { 
+  margin: 2px 0 !important; 
+  font-size: 9.5pt !important; 
+}
+
+.contact-row, .links-row, .info, .social-links { gap: 8px 12px !important; }
+
+.skills-container, .skills-grid { gap: 8px !important; }
+.skill-item, .skill-category { padding: 6px 0 !important; }
+.skill-label { font-size: 9.8pt !important; margin-bottom: 2px !important; }
+
+.entry-title-row, .item-header { page-break-inside: avoid; }
+
+.item-title { font-size: 10.8pt !important; }
+.item-period { font-size: 9pt !important; }
+
+.entry-title { font-size: 11pt !important; }
+
+
+
+.section, .entry, .item { orphans: 2; widows: 2; }
+
+* { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+
+.template-sidebar {
+    margin: -15mm !important;
+    box-shadow: none !important;    
+    border-radius: 0 !important;   
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+}
+
+.template-sidebar .main-content {
+    margin: 10mm !important;
+    padding: 0mm !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+}
