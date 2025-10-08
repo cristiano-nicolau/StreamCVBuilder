@@ -4,6 +4,8 @@ from typing import Any, Dict
 
 import streamlit as st
 
+DATA_KEY = "cv_data"
+
 from .callbacks import EditorCallbacks, PreviewCallbacks
 from .editor_sections import (
     render_about_me,
@@ -34,19 +36,32 @@ def render_data_editor(
     render_skills(cv_data, example_data)
 
     st.markdown("---")
-    footer_cols = st.columns(2)
-    footer_cols[0].button(
-        "Save All Data",
-        use_container_width=True,
-        key="btn_save_all",
-        on_click=callbacks.on_save,
-    )
-    footer_cols[1].button(
-        "Delete All Data",
-        use_container_width=True,
-        key="btn_delete_all",
-        on_click=callbacks.on_delete,
-    )
+    col1, col2, col3 = st.columns([1, 1, 1])
+    
+    with col1:
+        if st.button("Upload Data", use_container_width=True, key="btn_upload"):
+            st.session_state['show_upload_modal'] = True
+            
+    with col2:
+        callbacks.on_download()
+    
+    with col3:
+        st.button(
+            "Delete All Data",
+            use_container_width=True,
+            key="btn_delete_all",
+            on_click=callbacks.on_delete,
+        )
+    
+    # Upload Modal
+    if 'show_upload_modal' not in st.session_state:
+        st.session_state['show_upload_modal'] = False
+        
+    if st.session_state['show_upload_modal']:
+        with st.expander("Upload CV Data", expanded=True):
+            callbacks.on_upload()
+            if st.button("Close"):
+                st.session_state['show_upload_modal'] = False
 
 
 __all__ = [
