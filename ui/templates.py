@@ -10,13 +10,13 @@ import streamlit as st
 
 def get_available_templates() -> List[Dict[str, str]]:
     templates: List[Dict[str, str]] = [
-        {"name": "Standard", "path": os.path.join("templates", "cv_template.html")}
+        {"name": "Standard", "path": os.path.join("templates", "cv_templates", "Standard.html")},
     ]
 
     templates_dir = Path("templates") / "cv_templates"
     if templates_dir.exists():
         for file in sorted(templates_dir.iterdir()):
-            if file.suffix.lower() == ".html":
+            if file.suffix.lower() == ".html" and file.stem.lower() != "standard":
                 templates.append({"name": file.stem.capitalize(), "path": str(file)})
 
     return templates

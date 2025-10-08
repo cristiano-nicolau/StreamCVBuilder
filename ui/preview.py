@@ -7,6 +7,7 @@ import streamlit as st
 
 from .callbacks import PreviewCallbacks
 from .templates import generate_html_cv, get_available_templates
+from .pdf_generator import html_to_pdf_bytes
 
 
 def render_cv_preview(
@@ -27,7 +28,7 @@ def render_cv_preview(
     templates = get_available_templates()
     template_names = [t["name"] for t in templates]
     
-    col1, col2 = st.columns([1, 1])
+    col1, col2 = st.columns([1, 3])
     
     with col1:
         selected_template = st.selectbox("Choose a template", template_names, key="template_selector")
@@ -36,8 +37,22 @@ def render_cv_preview(
         st.markdown("### Select Content to Include")
         
         sections_data = data_to_use.get("sections", {})
+        network_data = data_to_use.get("social_networks", [])
         
         include_aboutme = st.checkbox("About Me", value=bool(sections_data.get("aboutme")), key="include_aboutme")
+
+        if network_data:
+            include_network = st.checkbox(f"Network ({len(network_data)} items)", value=True, key="include_network")
+            selected_network_indices = []
+            if include_network:
+                with st.expander("Select specific network items"):
+                    for idx, net in enumerate(network_data):
+                        net_label = f"{net.get('label', 'Label')}: {net.get('url', 'URL')}"
+                        if st.checkbox(net_label, value=True, key=f"net_select_{idx}"):
+                            selected_network_indices.append(idx)
+        else:
+            include_network = False
+            selected_network_indices = []    
         
         experience_list = sections_data.get("experience", [])
         if experience_list:
@@ -123,7 +138,7 @@ def render_cv_preview(
             with col_btn1:
                 generate_html = st.button("Generate HTML", use_container_width=True, type="primary")
             with col_btn2:
-                generate_pdf = st.button("Print PDF", use_container_width=True)
+                generate_pdf = st.button("Generate PDF", use_container_width=True)
     
     with col2:
         st.markdown("<h3 style='text-align: center;'>Template Preview</h3>", unsafe_allow_html=True)
@@ -134,6 +149,9 @@ def render_cv_preview(
         if include_aboutme and sections_data.get("aboutme"):
             filtered_sections["aboutme"] = sections_data["aboutme"]
         
+        if include_network and selected_network_indices:
+            filtered_sections["network"] = [network_data[i] for i in selected_network_indices]
+
         if include_experience and selected_experience_indices:
             filtered_sections["experience"] = [experience_list[i] for i in selected_experience_indices]
         
@@ -177,21 +195,14 @@ def render_cv_preview(
             )
         
         if generate_pdf:
-            html_with_print = html_content + """
-<script>
-    window.onload = function() {
-        setTimeout(function() { window.print(); }, 500);
-    };
-</script>
-"""
-            st.success("Download the HTML file below and open it in your browser")
-            st.info("💡 The print dialog will open automatically. Choose 'Save as PDF' as the destination.")
-            
-            st.download_button(
-                label="📄 Download & Print to PDF",
-                data=html_with_print,
-                file_name="cv_print.html",
-                mime="text/html",
-                use_container_width=True,
-                type="primary"
-            )
+            pdf_bytes = html_to_pdf_bytes(html_content)
+            if pdf_bytes:
+                st.success("PDF generated successfully!")
+                b64_pdf = base64.b64encode(pdf_bytes).decode()
+                st.markdown(
+                    f'<a href="data:application/pdf;base64,{b64_pdf}" download="cv.pdf" style="display: inline-block; padding: 0.5rem 1rem; background-color: #0066cc; color: white; text-decoration: none; border-radius: 4px; font-weight: 500;">Download PDF</a>',
+                    unsafe_allow_html=True
+                )
+            else:
+                st.error("Failed to convert HTML to PDF. Try a simpler template or export HTML.")
+

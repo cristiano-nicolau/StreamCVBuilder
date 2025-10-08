@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ name }} - CV</title>
     <style>
+        
         * {
             margin: 0;
             padding: 0;
@@ -190,10 +191,12 @@
 </head>
 <body>
     <div class="header">
-        <h1>{{ name }}</h1>
-        {% if role %}
-        <div class="role">{{ role }}</div>
-        {% endif %}
+        <div style="display: flex; align-items: baseline; justify-content: space-between;">
+            <h1>{{ name }}</h1>
+            {% if role %}
+            <div class="role">{{ role }}</div>
+            {% endif %}
+        </div>
         <div class="contact-info">
             {% if email %}<span>{{ email }}</span>{% endif %}
             {% if phone %}<span>{{ phone }}</span>{% endif %}
