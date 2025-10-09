@@ -1,6 +1,6 @@
 import yaml
 import os
-from typing import Dict, Any
+from typing import Dict, Any, Union, BinaryIO
 
 def load_yaml_file(file_path: str) -> Dict[str, Any]:
     """
@@ -72,3 +72,27 @@ def merge_with_example(user_data: Dict[str, Any]) -> Dict[str, Any]:
         return result
     
     return merge_dicts(example_data, user_data)
+
+def load_yaml_from_file(file: Union[str, BinaryIO]) -> Dict[str, Any]:
+    """
+    Carrega um YAML de um arquivo ou objeto tipo arquivo.
+    """
+    try:
+        if isinstance(file, str):
+            with open(file, 'r', encoding='utf-8') as f:
+                return yaml.safe_load(f)
+        else:
+            return yaml.safe_load(file)
+    except (FileNotFoundError, yaml.YAMLError) as e:
+        print(f"Erro ao carregar YAML: {e}")
+        return {}
+
+def dump_yaml_to_string(data: Dict[str, Any]) -> str:
+    """
+    Converte um dicionário para string YAML.
+    """
+    try:
+        return yaml.dump(data, default_flow_style=False, allow_unicode=True, indent=2)
+    except yaml.YAMLError as e:
+        print(f"Erro ao converter para YAML: {e}")
+        return ""
