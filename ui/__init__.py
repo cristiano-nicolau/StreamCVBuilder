@@ -17,6 +17,7 @@ from .editor_sections import (
 )
 from .preview import render_cv_preview
 from .templates import generate_html_cv, get_available_templates
+from .cv_builder import render_cv_builder
 
 
 def render_data_editor(

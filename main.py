@@ -6,7 +6,7 @@ from typing import Optional, Tuple
 import streamlit as st
 from streamlit_option_menu import option_menu
 
-from ui import EditorCallbacks, PreviewCallbacks, render_cv_preview, render_data_editor
+from ui import EditorCallbacks, PreviewCallbacks, render_cv_preview, render_data_editor, render_cv_builder
 from utils.yaml_utils import load_example_data, load_user_data, save_user_data
 
 APP_TITLE = "CV Builder"
@@ -17,6 +17,7 @@ EXAMPLE_KEY = "example_data"
 FEEDBACK_KEY = "app_feedback"
 DEFAULT_VIEW = "Data Editor"
 PREVIEW_VIEW = "CV Generator"
+BUILDER_VIEW = "CV Builder"
 CUSTOM_CSS = """
 <style>
     .main-header {
@@ -127,12 +128,12 @@ def handle_change_view(view: str) -> None:
 def render_tab_navigation() -> None:
     """Render the top-level tab navigation."""
 
-    options = [DEFAULT_VIEW, PREVIEW_VIEW]
+    options = [DEFAULT_VIEW, PREVIEW_VIEW, BUILDER_VIEW]
     default_index = options.index(st.session_state[NAV_KEY])
     selected_view = option_menu(
         None,
         options,
-        icons=["pencil-square", "file-earmark-text"],
+        icons=["pencil-square", "file-earmark-text", "kanban"],
         menu_icon="list",
         default_index=default_index,
         orientation="horizontal",
@@ -179,12 +180,14 @@ def main() -> None:
             st.session_state[EXAMPLE_KEY],
             editor_callbacks,
         )
-    else:
+    elif st.session_state[NAV_KEY] == PREVIEW_VIEW:
         render_cv_preview(
             st.session_state[DATA_KEY],
             st.session_state[EXAMPLE_KEY],
             preview_callbacks,
         )
+    else:  # BUILDER_VIEW
+        render_cv_builder(st.session_state[DATA_KEY])
 
 
 if __name__ == "__main__":

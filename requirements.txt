@@ -6,3 +6,4 @@ markdown==3.5.1
 python-docx==0.8.11
 streamlit-option-menu==0.3.6
 streamlit-extras==0.3.5
+pdfkit
