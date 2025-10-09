@@ -97,12 +97,7 @@ def get_section_content(data: Dict[str, Any], section_name: str, selected_items:
             
     return "\n".join(content)
 
-def render_cv_builder(data: Dict[str, Any], callbacks: EditorCallbacks) -> None:
-    st.header("CV Builder")
-    
-    # Check if there's data to work with
-    has_user_data = data and data.get("name")
-    
+def render_cv_builder(data: Dict[str, Any], callbacks: EditorCallbacks) -> None:    
     if not data or not data.get("name"):
         st.warning("No CV data available. Please fill in the Data Editor tab or load example data.")
         if st.button("Load Example Data", use_container_width=True, type="primary"):
@@ -110,7 +105,6 @@ def render_cv_builder(data: Dict[str, Any], callbacks: EditorCallbacks) -> None:
             st.rerun()
         return
     
-    # Add CSS for column separation and better layout
     st.markdown("""
         <style>
         .stColumn {
@@ -193,7 +187,7 @@ def render_cv_builder(data: Dict[str, Any], callbacks: EditorCallbacks) -> None:
             for field, value in personal_fields.items():
                 if value:  # Only show fields that have data
                     field_label = field.replace("_", " ").title()
-                    is_selected = st.session_state.personal_info_selected.get(field, True)  # Default to selected
+                    is_selected = st.session_state.personal_info_selected.get(field, True)  
                     
                     # Create checkbox for each field
                     if st.checkbox(f"{field_label}: {value}", value=is_selected, key=f"personal_{field}"):
@@ -261,9 +255,7 @@ def render_cv_builder(data: Dict[str, Any], callbacks: EditorCallbacks) -> None:
         st.subheader("Selected Items")
         st.markdown('<div class="selected-sections">', unsafe_allow_html=True)
         
-        # Display selected sections
         for i, section in enumerate(st.session_state.selected_sections):
-            # Get section title
             section_title = ""
             
             if section == "personal_info":
@@ -353,23 +345,18 @@ def render_cv_builder(data: Dict[str, Any], callbacks: EditorCallbacks) -> None:
                             label = item.get('institution', item.get('company', item.get('name',
                                     item.get('label', item.get('title', item.get('content', f'Item {idx + 1}'))))))
                             
-                            # Use HTML para layout inline
-                            st.markdown(
-                                f"""
-                                <div style="display: flex; justify-content: space-between; align-items: center; 
-                                    margin: 5px 0; padding: 5px; border: 1px solid #eee; border-radius: 4px;">
-                                    <div style="flex-grow: 1;">• {label}</div>
-                                </div>
-                                """,
-                                unsafe_allow_html=True
-                            )
-                            if st.button("✕", key=f"remove_item_{section}_{idx}"):
-                                st.session_state.selected_items[section].remove(idx)
-                                if not st.session_state.selected_items[section]:
-                                    st.session_state.selected_sections.remove(section)
-                                    del st.session_state.selected_items[section]
-                                st.session_state.current_action = "remove_item"
-                                st.rerun()
+                            # Use columns para botão inline
+                            item_cols = st.columns([7, 1])
+                            with item_cols[0]:
+                                st.markdown(f"• {label}")
+                            with item_cols[1]:
+                                if st.button("✕", key=f"remove_item_{section}_{idx}"):
+                                    st.session_state.selected_items[section].remove(idx)
+                                    if not st.session_state.selected_items[section]:
+                                        st.session_state.selected_sections.remove(section)
+                                        del st.session_state.selected_items[section]
+                                    st.session_state.current_action = "remove_item"
+                                    st.rerun()
             
             st.markdown("---")
     
