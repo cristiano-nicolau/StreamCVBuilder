@@ -29,7 +29,6 @@ CUSTOM_CSS = """
     .section-header {
         font-size: 1.4rem;
         font-weight: bold;
-        color: #2c3e50;
         margin-top: 1.5rem;
         margin-bottom: 0.8rem;
         border-bottom: 2px solid #3498db;
