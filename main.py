@@ -187,7 +187,7 @@ def main() -> None:
             preview_callbacks,
         )
     else:  # BUILDER_VIEW
-        render_cv_builder(st.session_state[DATA_KEY])
+        render_cv_builder(st.session_state[DATA_KEY], editor_callbacks)
 
 
 if __name__ == "__main__":
