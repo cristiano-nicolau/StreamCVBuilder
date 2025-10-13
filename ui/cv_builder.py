@@ -142,17 +142,11 @@ def render_cv_builder(data: Dict[str, Any], callbacks: EditorCallbacks) -> None:
     
     # Initialize personal info and social networks in session state
     if "personal_info_selected" not in st.session_state:
-        # Auto-select all available personal info fields on first load
-        personal_fields = {
-            "name": data.get("name", ""),
-            "email": data.get("email", ""),
-            "phone": data.get("phone", ""),
-            "location": data.get("location", ""),
-            "role": data.get("role", "")
-        }
-        st.session_state.personal_info_selected = {
-            field: bool(value) for field, value in personal_fields.items()
-        }
+        # Auto-select all available personal info fields on first load in default order
+        personal_fields = ["name", "email", "phone", "location", "role"]
+        st.session_state.personal_info_selected = [
+            field for field in personal_fields if data.get(field, "")
+        ]
     
     if "social_networks_selected" not in st.session_state:
         st.session_state.social_networks_selected = []
@@ -171,7 +165,7 @@ def render_cv_builder(data: Dict[str, Any], callbacks: EditorCallbacks) -> None:
     if "selected_sections" not in st.session_state:
         st.session_state.selected_sections = []
         # Auto-add personal_info section if any fields are selected
-        if any(st.session_state.personal_info_selected.values()):
+        if st.session_state.personal_info_selected:
             st.session_state.selected_sections.insert(0, "personal_info")
     if "selected_items" not in st.session_state:
         st.session_state.selected_items = {}
@@ -200,17 +194,19 @@ def render_cv_builder(data: Dict[str, Any], callbacks: EditorCallbacks) -> None:
             for field, value in personal_fields.items():
                 if value:  # Only show fields that have data
                     field_label = field.replace("_", " ").title()
-                    is_selected = st.session_state.personal_info_selected.get(field, False)  
+                    is_selected = field in st.session_state.personal_info_selected
                     
                     # Create checkbox for each field
                     if st.checkbox(f"{field_label}: {value}", value=is_selected, key=f"personal_{field}"):
-                        st.session_state.personal_info_selected[field] = True
+                        if field not in st.session_state.personal_info_selected:
+                            st.session_state.personal_info_selected.append(field)
                         if "personal_info" not in st.session_state.selected_sections:
                             st.session_state.selected_sections.insert(0, "personal_info")
                     else:
-                        st.session_state.personal_info_selected[field] = False
+                        if field in st.session_state.personal_info_selected:
+                            st.session_state.personal_info_selected.remove(field)
                         # Remove personal_info section if no fields are selected
-                        if not any(st.session_state.personal_info_selected.values()):
+                        if not st.session_state.personal_info_selected:
                             if "personal_info" in st.session_state.selected_sections:
                                 st.session_state.selected_sections.remove("personal_info")
         
@@ -228,28 +224,23 @@ def render_cv_builder(data: Dict[str, Any], callbacks: EditorCallbacks) -> None:
                         if idx not in st.session_state.social_networks_selected:
                             st.session_state.social_networks_selected.append(idx)
                             if "social_networks" not in st.session_state.selected_sections:
-                                # Insert after personal_info if it exists, otherwise at the beginning
                                 insert_pos = 1 if "personal_info" in st.session_state.selected_sections else 0
                                 st.session_state.selected_sections.insert(insert_pos, "social_networks")
                     else:
                         if idx in st.session_state.social_networks_selected:
                             st.session_state.social_networks_selected.remove(idx)
-                            # Remove social_networks section if no networks are selected
                             if not st.session_state.social_networks_selected:
                                 if "social_networks" in st.session_state.selected_sections:
                                     st.session_state.selected_sections.remove("social_networks")
     
-        # Display available sections as expandable sections
         for section_name, section_key in available_sections.items():
             items = get_section_items(data, section_key)
-            if items:  # Only show sections that have items
+            if items:  
                 with st.expander(section_name):
                     for idx, item in enumerate(items):
-                        # Get a descriptive label for the item
                         label = item.get('institution', item.get('company', item.get('name',
                                 item.get('label', item.get('title', item.get('content', f'Item {idx + 1}'))))))
                         
-                        # Create a clickable button for each item
                         if section_key not in st.session_state.selected_sections or \
                            idx not in st.session_state.selected_items.get(section_key, []):
                             st.markdown(f'<div class="section-item">', unsafe_allow_html=True)
@@ -280,11 +271,9 @@ def render_cv_builder(data: Dict[str, Any], callbacks: EditorCallbacks) -> None:
                         section_title = name
                         break
             
-            # Header with controls
             cols = st.columns([4, 1, 1, 1])
             cols[0].markdown(f"### {section_title}")
             
-            # Up button
             if i > 0:
                 if cols[1].button("↑", key=f"up_{section}"):
                     st.session_state.selected_sections[i], st.session_state.selected_sections[i-1] = \
@@ -292,7 +281,6 @@ def render_cv_builder(data: Dict[str, Any], callbacks: EditorCallbacks) -> None:
                     st.session_state.current_action = "reorder"
                     st.rerun()
             
-            # Down button
             if i < len(st.session_state.selected_sections) - 1:
                 if cols[2].button("↓", key=f"down_{section}"):
                     st.session_state.selected_sections[i], st.session_state.selected_sections[i+1] = \
@@ -300,42 +288,36 @@ def render_cv_builder(data: Dict[str, Any], callbacks: EditorCallbacks) -> None:
                     st.session_state.current_action = "reorder"
                     st.rerun()
             
-            # Remove button
             if cols[3].button("✕", key=f"remove_section_{section}"):
                 st.session_state.selected_sections.remove(section)
                 if section in st.session_state.selected_items:
                     del st.session_state.selected_items[section]
-                # Clear personal info or social networks selections if removed
                 if section == "personal_info":
-                    st.session_state.personal_info_selected = {}
+                    st.session_state.personal_info_selected = []
                 elif section == "social_networks":
                     st.session_state.social_networks_selected = []
                 st.session_state.current_action = "remove_section"
                 st.rerun()
             
-            # Display items based on section type
             if section == "personal_info":
-                # Display selected personal info fields
-                for field, is_selected in st.session_state.personal_info_selected.items():
-                    if is_selected:
-                        field_label = field.replace("_", " ").title()
-                        value = data.get(field, "")
-                        
-                        item_cols = st.columns([7, 1])
-                        with item_cols[0]:
-                            st.markdown(f"• {field_label}: {value}")
-                        with item_cols[1]:
-                            if st.button("✕", key=f"remove_personal_{field}"):
-                                st.session_state.personal_info_selected[field] = False
-                                # Remove personal_info section if no fields are selected
-                                if not any(st.session_state.personal_info_selected.values()):
-                                    if "personal_info" in st.session_state.selected_sections:
-                                        st.session_state.selected_sections.remove("personal_info")
-                                st.session_state.current_action = "remove_personal_item"
-                                st.rerun()
+                # Display selected personal info fields in the order they were selected
+                for field in st.session_state.personal_info_selected:
+                    field_label = field.replace("_", " ").title()
+                    value = data.get(field, "")
+                    
+                    item_cols = st.columns([7, 1])
+                    with item_cols[0]:
+                        st.markdown(f"• {field_label}: {value}")
+                    with item_cols[1]:
+                        if st.button("✕", key=f"remove_personal_{field}"):
+                            st.session_state.personal_info_selected.remove(field)
+                            if not st.session_state.personal_info_selected:
+                                if "personal_info" in st.session_state.selected_sections:
+                                    st.session_state.selected_sections.remove("personal_info")
+                            st.session_state.current_action = "remove_personal_item"
+                            st.rerun()
             
             elif section == "social_networks":
-                # Display selected social networks
                 social_networks = data.get("social_networks", [])
                 for idx in st.session_state.social_networks_selected:
                     if idx < len(social_networks):
@@ -348,7 +330,6 @@ def render_cv_builder(data: Dict[str, Any], callbacks: EditorCallbacks) -> None:
                         with item_cols[1]:
                             if st.button("✕", key=f"remove_social_{idx}"):
                                 st.session_state.social_networks_selected.remove(idx)
-                                # Remove social_networks section if no networks are selected
                                 if not st.session_state.social_networks_selected:
                                     if "social_networks" in st.session_state.selected_sections:
                                         st.session_state.selected_sections.remove("social_networks")
@@ -356,7 +337,6 @@ def render_cv_builder(data: Dict[str, Any], callbacks: EditorCallbacks) -> None:
                                 st.rerun()
             
             else:
-                # Display regular section items
                 items = get_section_items(data, section)
                 selected_items = st.session_state.selected_items.get(section, [])
                 
@@ -385,7 +365,6 @@ def render_cv_builder(data: Dict[str, Any], callbacks: EditorCallbacks) -> None:
         preview_tab, md_editor_tab = st.tabs(["Preview", "MD Editor"])
         
         with preview_tab:
-            st.subheader("Preview")
             st.markdown('<div class="preview-container">', unsafe_allow_html=True)
             
             if st.session_state.selected_sections:
@@ -394,29 +373,24 @@ def render_cv_builder(data: Dict[str, Any], callbacks: EditorCallbacks) -> None:
                 # Process sections in order
                 for section in st.session_state.selected_sections:
                     if section == "personal_info":
-                        # Add personal information
-                        selected_personal = {k: v for k, v in st.session_state.personal_info_selected.items() if v}
-                        if selected_personal:
-                            if st.session_state.personal_info_selected.get("name", True):
+                        # Add personal information in the order they were selected
+                        if st.session_state.personal_info_selected:
+                            # Add name if it's selected
+                            if "name" in st.session_state.personal_info_selected:
                                 name = data.get("name", "")
                                 if name:
                                     preview_content += f"# {name}\n\n"
                             
+                            # Add other contact info in the order they were selected
                             contact_info = []
-                            if st.session_state.personal_info_selected.get("email", True) and data.get("email"):
-                                contact_info.append(f"📧 {data.get('email')}")
-                            if st.session_state.personal_info_selected.get("phone", True) and data.get("phone"):
-                                contact_info.append(f"📱 {data.get('phone')}")
-                            if st.session_state.personal_info_selected.get("location", True) and data.get("location"):
-                                contact_info.append(f"📍 {data.get('location')}")
-                            if st.session_state.personal_info_selected.get("role", True) and data.get("role"):
-                                contact_info.append(f"💼 {data.get('role')}")
+                            for field in st.session_state.personal_info_selected:
+                                if field != "name" and data.get(field):  # Skip name as it's already added
+                                    contact_info.append(f"{data.get(field)}")
                             
                             if contact_info:
                                 preview_content += " | ".join(contact_info) + "\n\n"
                     
                     elif section == "social_networks":
-                        # Add selected social networks
                         social_networks = data.get("social_networks", [])
                         if st.session_state.social_networks_selected:
                             social_links = []
@@ -428,7 +402,7 @@ def render_cv_builder(data: Dict[str, Any], callbacks: EditorCallbacks) -> None:
                                     social_links.append(f"[{network_name}]({network_url})")
                             
                             if social_links:
-                                preview_content += "**Social Networks:** " + " | ".join(social_links) + "\n\n---\n\n"
+                                preview_content += "" + " | ".join(social_links) + "\n\n"
                     
                     else:
                         # Add regular section content
