@@ -142,7 +142,17 @@ def render_cv_builder(data: Dict[str, Any], callbacks: EditorCallbacks) -> None:
     
     # Initialize personal info and social networks in session state
     if "personal_info_selected" not in st.session_state:
-        st.session_state.personal_info_selected = {}
+        # Auto-select all available personal info fields on first load
+        personal_fields = {
+            "name": data.get("name", ""),
+            "email": data.get("email", ""),
+            "phone": data.get("phone", ""),
+            "location": data.get("location", ""),
+            "role": data.get("role", "")
+        }
+        st.session_state.personal_info_selected = {
+            field: bool(value) for field, value in personal_fields.items()
+        }
     
     if "social_networks_selected" not in st.session_state:
         st.session_state.social_networks_selected = []
@@ -160,6 +170,9 @@ def render_cv_builder(data: Dict[str, Any], callbacks: EditorCallbacks) -> None:
     # Initialize session state
     if "selected_sections" not in st.session_state:
         st.session_state.selected_sections = []
+        # Auto-add personal_info section if any fields are selected
+        if any(st.session_state.personal_info_selected.values()):
+            st.session_state.selected_sections.insert(0, "personal_info")
     if "selected_items" not in st.session_state:
         st.session_state.selected_items = {}
     if "current_action" not in st.session_state:
