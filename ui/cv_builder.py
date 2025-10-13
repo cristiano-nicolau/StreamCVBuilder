@@ -362,54 +362,71 @@ def render_cv_builder(data: Dict[str, Any], callbacks: EditorCallbacks) -> None:
             st.markdown("---")
     
     with col3:
+        # Initialize session state for edited markdown
+        if "edited_markdown" not in st.session_state:
+            st.session_state.edited_markdown = None
+        if "original_markdown" not in st.session_state:
+            st.session_state.original_markdown = ""
+        
         preview_tab, md_editor_tab = st.tabs(["Preview", "MD Editor"])
+        
+        # Generate the default/original markdown content
+        if st.session_state.selected_sections:
+            original_content = ""
+            
+            # Process sections in order
+            for section in st.session_state.selected_sections:
+                if section == "personal_info":
+                    # Add personal information in the order they were selected
+                    if st.session_state.personal_info_selected:
+                        # Add name if it's selected
+                        if "name" in st.session_state.personal_info_selected:
+                            name = data.get("name", "")
+                            if name:
+                                original_content += f"# {name}\n\n"
+                        
+                        # Add other contact info in the order they were selected
+                        contact_info = []
+                        for field in st.session_state.personal_info_selected:
+                            if field != "name" and data.get(field):  # Skip name as it's already added
+                                contact_info.append(f"{data.get(field)}")
+                        
+                        if contact_info:
+                            original_content += " | ".join(contact_info) + "\n\n"
+                
+                elif section == "social_networks":
+                    social_networks = data.get("social_networks", [])
+                    if st.session_state.social_networks_selected:
+                        social_links = []
+                        for idx in st.session_state.social_networks_selected:
+                            if idx < len(social_networks):
+                                network = social_networks[idx]
+                                network_name = network.get('network', 'Link')
+                                network_url = network.get('url', '#')
+                                social_links.append(f"[{network_name}]({network_url})")
+                        
+                        if social_links:
+                            original_content += "" + " | ".join(social_links) + "\n\n"
+                
+                else:
+                    # Add regular section content
+                    selected_items = st.session_state.selected_items.get(section, [])
+                    if selected_items:
+                        original_content += get_section_content(data, section, selected_items) + "\n\n"
+            
+            # Store original content
+            st.session_state.original_markdown = original_content
+            
+            # Determine which content to use (edited or original)
+            preview_content = st.session_state.edited_markdown if st.session_state.edited_markdown is not None else original_content
+        else:
+            original_content = ""
+            preview_content = ""
         
         with preview_tab:
             st.markdown('<div class="preview-container">', unsafe_allow_html=True)
             
-            if st.session_state.selected_sections:
-                preview_content = ""
-                
-                # Process sections in order
-                for section in st.session_state.selected_sections:
-                    if section == "personal_info":
-                        # Add personal information in the order they were selected
-                        if st.session_state.personal_info_selected:
-                            # Add name if it's selected
-                            if "name" in st.session_state.personal_info_selected:
-                                name = data.get("name", "")
-                                if name:
-                                    preview_content += f"# {name}\n\n"
-                            
-                            # Add other contact info in the order they were selected
-                            contact_info = []
-                            for field in st.session_state.personal_info_selected:
-                                if field != "name" and data.get(field):  # Skip name as it's already added
-                                    contact_info.append(f"{data.get(field)}")
-                            
-                            if contact_info:
-                                preview_content += " | ".join(contact_info) + "\n\n"
-                    
-                    elif section == "social_networks":
-                        social_networks = data.get("social_networks", [])
-                        if st.session_state.social_networks_selected:
-                            social_links = []
-                            for idx in st.session_state.social_networks_selected:
-                                if idx < len(social_networks):
-                                    network = social_networks[idx]
-                                    network_name = network.get('network', 'Link')
-                                    network_url = network.get('url', '#')
-                                    social_links.append(f"[{network_name}]({network_url})")
-                            
-                            if social_links:
-                                preview_content += "" + " | ".join(social_links) + "\n\n"
-                    
-                    else:
-                        # Add regular section content
-                        selected_items = st.session_state.selected_items.get(section, [])
-                        if selected_items:
-                            preview_content += get_section_content(data, section, selected_items) + "\n\n"
-            
+            if preview_content:
                 # Convert markdown to HTML and display preview
                 html = markdown.markdown(preview_content)
                 st.markdown(html, unsafe_allow_html=True)
@@ -495,11 +512,36 @@ def render_cv_builder(data: Dict[str, Any], callbacks: EditorCallbacks) -> None:
                         except Exception as e:
                             st.error(f"Error generating PDF: {str(e)}")
                 st.markdown('</div>', unsafe_allow_html=True)
+            else:
+                st.info("Select sections from the left to generate your CV preview")
+            
+            st.markdown('</div>', unsafe_allow_html=True)
         
         with md_editor_tab:
-            st.subheader("Markdown Editor")
             if st.session_state.selected_sections:
-                edited_content = st.text_area("Edit Markdown", value=preview_content, height=400)
-                preview_content = edited_content  # Update preview content with edited content
-        
-        st.markdown('</div>', unsafe_allow_html=True)
+                # Show reset button
+                col_reset, col_spacer = st.columns([1, 3])
+                with col_reset:
+                    if st.button("🔄 Reset to Default", use_container_width=True):
+                        st.session_state.edited_markdown = None
+                        
+                
+                # Show the markdown editor
+                edited_value = st.session_state.edited_markdown if st.session_state.edited_markdown is not None else st.session_state.original_markdown
+                
+                new_content = st.text_area(
+                    "Edit Markdown", 
+                    value=edited_value, 
+                    height=400,
+                    key="markdown_editor"
+                )
+                
+                # Only update if content actually changed
+                if new_content != edited_value:
+                    st.session_state.edited_markdown = new_content
+                    if st.session_state.edited_markdown is not None:
+                        st.rerun()
+                    
+
+            else:
+                st.info("Select sections from the left to start editing")
