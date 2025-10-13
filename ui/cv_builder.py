@@ -187,14 +187,13 @@ def render_cv_builder(data: Dict[str, Any], callbacks: EditorCallbacks) -> None:
             for field, value in personal_fields.items():
                 if value:  # Only show fields that have data
                     field_label = field.replace("_", " ").title()
-                    is_selected = st.session_state.personal_info_selected.get(field, True)  
+                    is_selected = st.session_state.personal_info_selected.get(field, False)  
                     
                     # Create checkbox for each field
                     if st.checkbox(f"{field_label}: {value}", value=is_selected, key=f"personal_{field}"):
                         st.session_state.personal_info_selected[field] = True
-                        if field not in st.session_state.selected_sections:
-                            if "personal_info" not in st.session_state.selected_sections:
-                                st.session_state.selected_sections.insert(0, "personal_info")
+                        if "personal_info" not in st.session_state.selected_sections:
+                            st.session_state.selected_sections.insert(0, "personal_info")
                     else:
                         st.session_state.personal_info_selected[field] = False
                         # Remove personal_info section if no fields are selected
@@ -308,14 +307,19 @@ def render_cv_builder(data: Dict[str, Any], callbacks: EditorCallbacks) -> None:
                     if is_selected:
                         field_label = field.replace("_", " ").title()
                         value = data.get(field, "")
-                        st.markdown(
-                            f"""
-                            <div class="personal-info-item">
-                                <div>• {field_label}: {value}</div>
-                            </div>
-                            """,
-                            unsafe_allow_html=True
-                        )
+                        
+                        item_cols = st.columns([7, 1])
+                        with item_cols[0]:
+                            st.markdown(f"• {field_label}: {value}")
+                        with item_cols[1]:
+                            if st.button("✕", key=f"remove_personal_{field}"):
+                                st.session_state.personal_info_selected[field] = False
+                                # Remove personal_info section if no fields are selected
+                                if not any(st.session_state.personal_info_selected.values()):
+                                    if "personal_info" in st.session_state.selected_sections:
+                                        st.session_state.selected_sections.remove("personal_info")
+                                st.session_state.current_action = "remove_personal_item"
+                                st.rerun()
             
             elif section == "social_networks":
                 # Display selected social networks
@@ -324,14 +328,19 @@ def render_cv_builder(data: Dict[str, Any], callbacks: EditorCallbacks) -> None:
                     if idx < len(social_networks):
                         network = social_networks[idx]
                         network_label = f"{network.get('network', 'Network')}: {network.get('username', network.get('url', 'Link'))}"
-                        st.markdown(
-                            f"""
-                            <div class="social-network-item">
-                                <div>• {network_label}</div>
-                            </div>
-                            """,
-                            unsafe_allow_html=True
-                        )
+                        
+                        item_cols = st.columns([7, 1])
+                        with item_cols[0]:
+                            st.markdown(f"• {network_label}")
+                        with item_cols[1]:
+                            if st.button("✕", key=f"remove_social_{idx}"):
+                                st.session_state.social_networks_selected.remove(idx)
+                                # Remove social_networks section if no networks are selected
+                                if not st.session_state.social_networks_selected:
+                                    if "social_networks" in st.session_state.selected_sections:
+                                        st.session_state.selected_sections.remove("social_networks")
+                                st.session_state.current_action = "remove_social_item"
+                                st.rerun()
             
             else:
                 # Display regular section items
@@ -345,7 +354,6 @@ def render_cv_builder(data: Dict[str, Any], callbacks: EditorCallbacks) -> None:
                             label = item.get('institution', item.get('company', item.get('name',
                                     item.get('label', item.get('title', item.get('content', f'Item {idx + 1}'))))))
                             
-                            # Use columns para botão inline
                             item_cols = st.columns([7, 1])
                             with item_cols[0]:
                                 st.markdown(f"• {label}")
@@ -361,14 +369,12 @@ def render_cv_builder(data: Dict[str, Any], callbacks: EditorCallbacks) -> None:
             st.markdown("---")
     
     with col3:
-        # Create tabs for Preview and MD Editor
         preview_tab, md_editor_tab = st.tabs(["Preview", "MD Editor"])
         
         with preview_tab:
             st.subheader("Preview")
             st.markdown('<div class="preview-container">', unsafe_allow_html=True)
             
-            # Generate preview content
             if st.session_state.selected_sections:
                 preview_content = ""
                 
