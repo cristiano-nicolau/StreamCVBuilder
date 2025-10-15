@@ -1,15 +1,8 @@
 import streamlit as st
 from typing import Dict, List, Any
 import markdown
-import weasyprint
-from streamlit_option_menu import option_menu
-from .callbacks import EditorCallbacks
-
-import streamlit as st
-from typing import Dict, List, Any
 from weasyprint import HTML
-import markdown
-
+from .callbacks import EditorCallbacks
 def get_section_items(data: Dict[str, Any], section_name: str) -> List[Dict[str, Any]]:
     """Get items for a specific section."""
     sections = data.get("sections", {})
