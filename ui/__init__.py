@@ -17,6 +17,7 @@ from .editor_sections import (
 )
 from .preview import render_cv_preview
 from .templates import generate_html_cv, get_available_templates
+from .cv_builder import render_cv_builder
 
 
 def render_data_editor(
@@ -51,9 +52,10 @@ def render_data_editor(
 
 __all__ = [
     "EditorCallbacks",
-    "PreviewCallbacks",
+    "PreviewCallbacks", 
     "render_data_editor",
     "render_cv_preview",
+    "render_cv_builder",
     "get_available_templates",
     "generate_html_cv",
 ]

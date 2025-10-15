@@ -9,7 +9,7 @@ from streamlit_option_menu import option_menu
 import io
 import base64
 import yaml
-from ui.__init__cloud__ import render_cv_preview, render_data_editor, EditorCallbacks, PreviewCallbacks
+from ui.__init__cloud__ import render_cv_preview, render_data_editor, render_cv_builder, EditorCallbacks, PreviewCallbacks
 from utils.yaml_utils import load_example_data, dump_yaml_to_string, load_yaml_from_file
 
 APP_TITLE = "CV Builder"
@@ -20,6 +20,7 @@ EXAMPLE_KEY = "example_data"
 FEEDBACK_KEY = "app_feedback"
 DEFAULT_VIEW = "Data Editor"
 PREVIEW_VIEW = "CV Generator"
+CV_BUILDER_VIEW = "CV Builder"
 CUSTOM_CSS = """
 <style>
     .main-header {
@@ -172,12 +173,13 @@ def handle_change_view(view: str) -> None:
 def render_tab_navigation() -> None:
     """Render the top-level tab navigation."""
 
-    options = [DEFAULT_VIEW, PREVIEW_VIEW]
+    options = [DEFAULT_VIEW, PREVIEW_VIEW, CV_BUILDER_VIEW]
+    icons = ["pencil-square", "file-earmark-text", "kanban"]
     default_index = options.index(st.session_state[NAV_KEY])
     selected_view = option_menu(
         None,
         options,
-        icons=["pencil-square", "file-earmark-text"],
+        icons=icons,
         menu_icon="list",
         default_index=default_index,
         orientation="horizontal",
@@ -203,7 +205,7 @@ def main() -> None:
     display_feedback()
     st.markdown("## " + APP_TITLE, unsafe_allow_html=True)
     st.markdown("Create and customize your CV using predefined templates.")
-    st.markdown("Put your data in the editor tab and generate a preview or download your CV in the CV Generator tab.")
+    st.markdown("Put your data in the editor tab and generate a preview or download your CV in the CV Generator tab, or build it step by step in the CV Builder tab.")
     render_tab_navigation()
 
     editor_callbacks = EditorCallbacks(
@@ -224,6 +226,11 @@ def main() -> None:
         render_data_editor(
             st.session_state[DATA_KEY],
             st.session_state[EXAMPLE_KEY],
+            editor_callbacks,
+        )
+    elif st.session_state[NAV_KEY] == CV_BUILDER_VIEW:
+        render_cv_builder(
+            st.session_state[DATA_KEY],
             editor_callbacks,
         )
     else:
