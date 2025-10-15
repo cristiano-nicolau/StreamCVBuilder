@@ -159,7 +159,7 @@ def main() -> None:
     display_feedback()
     st.markdown("## " + APP_TITLE, unsafe_allow_html=True)
     st.markdown("Create and customize your CV using predefined templates.")
-    st.markdown("Put your data in the editor tab and generate a preview or download your CV in the CV Generator tab.")
+    st.markdown("Put your data in the editor tab and generate a preview or download your CV in the CV Generator tab, , or build it step by step in the CV Builder tab.")
     render_tab_navigation()
 
     editor_callbacks = EditorCallbacks(

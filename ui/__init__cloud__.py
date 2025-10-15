@@ -7,6 +7,7 @@ import streamlit as st
 DATA_KEY = "cv_data"
 
 from .callbacks_cloud import EditorCallbacks, PreviewCallbacks
+from .cv_builder import render_cv_builder
 from .editor_sections import (
     render_about_me,
     render_education,
@@ -69,6 +70,7 @@ __all__ = [
     "PreviewCallbacks",
     "render_data_editor",
     "render_cv_preview",
+    "render_cv_builder",
     "get_available_templates",
     "generate_html_cv",
 ]
