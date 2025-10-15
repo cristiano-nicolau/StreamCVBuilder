@@ -378,12 +378,17 @@ def render_cv_builder(data: Dict[str, Any], callbacks: EditorCallbacks) -> None:
                         if "name" in st.session_state.personal_info_selected:
                             name = data.get("name", "")
                             if name:
-                                original_content += f"# {name}\n\n"
+                                original_content += f"## {name}\n\n"
+
+                        if "role" in st.session_state.personal_info_selected:
+                            role = data.get("role", "")
+                            if role:
+                                original_content += f"### {role}\n\n"
                         
                         # Add other contact info in the order they were selected
                         contact_info = []
                         for field in st.session_state.personal_info_selected:
-                            if field != "name" and data.get(field):  # Skip name as it's already added
+                            if field != "name" and field != "role" and data.get(field):  # Skip name and role as they're already added
                                 contact_info.append(f"{data.get(field)}")
                         
                         if contact_info:
@@ -403,6 +408,10 @@ def render_cv_builder(data: Dict[str, Any], callbacks: EditorCallbacks) -> None:
                         if social_links:
                             original_content += "" + " | ".join(social_links) + "\n\n"
                 
+                elif section == "aboutme":
+                    selected_items = st.session_state.selected_items.get(section, [])
+                    if selected_items:
+                        original_content += get_section_content(data, section, selected_items) + "\n\n"
                 else:
                     # Add regular section content
                     selected_items = st.session_state.selected_items.get(section, [])
