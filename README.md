@@ -63,10 +63,15 @@ You can also use the cloud version at **https://streamcvbuilder.streamlit.app/**
    - Choose a template from the dropdown
    - Select which sections and specific items to include
    - Preview your CV in real-time
+  
+4. **Build your CV** - Switch to the "CV Builder" tab:
+   - Construct your CV with mardown language
+   - Preview CV in real-time
 
-4. **Export** - Click to generate:
+5. **Export** - Click to generate:
    - **HTML** - Download a standalone HTML file
    - **PDF** - Download a PDF version of your CV
+   - **Markdown** - Download a .md version of your CV
 
 ## Project Structure
 
