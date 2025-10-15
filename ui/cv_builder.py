@@ -107,11 +107,6 @@ def render_cv_builder(data: Dict[str, Any], callbacks: EditorCallbacks) -> None:
     
     st.markdown("""
         <style>
-        .stColumn {
-            border-right: 2px solid #e6e6e6;
-            padding-right: 15px;
-            margin-right: 15px;
-        }
         .download-buttons {
             border-top: 1px solid #e6e6e6;
             padding-top: 15px;
@@ -524,7 +519,7 @@ def render_cv_builder(data: Dict[str, Any], callbacks: EditorCallbacks) -> None:
                 with col_reset:
                     if st.button("🔄 Reset to Default", use_container_width=True):
                         st.session_state.edited_markdown = None
-                        
+                        st.rerun()
                 
                 # Show the markdown editor
                 edited_value = st.session_state.edited_markdown if st.session_state.edited_markdown is not None else st.session_state.original_markdown
@@ -539,8 +534,7 @@ def render_cv_builder(data: Dict[str, Any], callbacks: EditorCallbacks) -> None:
                 # Only update if content actually changed
                 if new_content != edited_value:
                     st.session_state.edited_markdown = new_content
-                    if st.session_state.edited_markdown is not None:
-                        st.rerun()
+                    st.rerun()
                     
 
             else:
