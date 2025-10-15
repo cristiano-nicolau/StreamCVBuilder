@@ -174,7 +174,7 @@ def render_tab_navigation() -> None:
     """Render the top-level tab navigation."""
 
     options = [DEFAULT_VIEW, PREVIEW_VIEW, CV_BUILDER_VIEW]
-    icons = ["pencil-square", "gear", "file-earmark-text"]
+    icons = ["pencil-square", "file-earmark-text", "kanban"]
     default_index = options.index(st.session_state[NAV_KEY])
     selected_view = option_menu(
         None,
