@@ -31,68 +31,72 @@ def get_section_content(data: Dict[str, Any], section_name: str, selected_items:
         selected_items = list(range(len(items)))
     
     if section_name == "aboutme":
-        content.append("## About Me\n")
+        content.append("### About Me\n")
         for i in selected_items:
             if i < len(items):
                 content.extend([items[i]["content"]])
         
     elif section_name == "education":
-        content.append("## Education\n")
+        content.append("### Education\n")
         for i in selected_items:
             if i < len(items):
                 edu = items[i]
-                content.append(f"### {edu['institution']}")
-                content.append(f"_{edu['degree']} in {edu['area']}_")
-                content.append(f"{edu['start_date']} - {edu['end_date']}")
+                content.append(f"#### {edu['degree']} in {edu['area']}")
+                content.append(f"**{edu['institution']}** <span style='float: right'>{edu['start_date']} – {edu['end_date']}</span>")
+                content.append("")
                 if "highlights" in edu:
                     for highlight in edu["highlights"]:
                         content.append(f"- {highlight}")
                 content.append("")
             
     elif section_name == "experience":
-        content.append("## Experience\n")
+        content.append("### Experience\n")
         for i in selected_items:
             if i < len(items):
                 exp = items[i]
-                content.append(f"### {exp['position']} at {exp['company']}")
-                content.append(f"{exp['start_date']} - {exp['end_date']}")
+                content.append(f"#### {exp['position']}")
+                content.append(f"**{exp['company']}** <span style='float: right'>{exp['start_date']} – {exp['end_date']}</span>")
+                content.append("")
                 if "highlights" in exp:
                     for highlight in exp["highlights"]:
                         content.append(f"- {highlight}")
                 content.append("")
             
     elif section_name == "projects":
-        content.append("## Projects\n")
+        content.append("### Projects\n")
         for i in selected_items:
             if i < len(items):
                 proj = items[i]
-                content.append(f"### {proj['name']}")
                 if "url" in proj:
-                    content.append(f"[Project Link]({proj['url']})")
-                content.append(f"{proj['start_date']} - {proj['end_date']}")
+                    content.append(f"#### [{proj['name']}]({proj['url']})")
+                    content.append(f"{proj['start_date']} – {proj['end_date']}")
+                else:
+                    content.append(f"#### {proj['name']}")
+                    content.append(f"{proj['start_date']} – {proj['end_date']}")
+                content.append("")
                 if "highlights" in proj:
                     for highlight in proj["highlights"]:
                         content.append(f"- {highlight}")
                 content.append("")
             
     elif section_name == "skills":
-        content.append("## Skills\n")
+        content.append("### Skills\n")
         for i in selected_items:
             if i < len(items):
                 skill = items[i]
-                content.append(f"### {skill['label']}")
+                content.append(f"#### {skill['label']}")
                 content.append(skill['details'])
                 content.append("")
             
     elif section_name == "publications":
-        content.append("## Publications\n")
+        content.append("### Publications\n")
         for i in selected_items:
             if i < len(items):
                 pub = items[i]
-                content.append(f"### {pub['title']}")
-                content.append(f"_{pub['venue']}_")
+                content.append(f"#### {pub['title']}")
                 if "authors" in pub:
-                    content.append("Authors: " + ", ".join(pub["authors"]))
+                    content.append("Authors: " + ", ".join(pub["authors"]) + "\n")
+                content.append(f"_{pub['venue']}_")
                 content.append("")
             
     return "\n".join(content)
@@ -383,7 +387,7 @@ def render_cv_builder(data: Dict[str, Any], callbacks: EditorCallbacks) -> None:
                         if "role" in st.session_state.personal_info_selected:
                             role = data.get("role", "")
                             if role:
-                                original_content += f"### {role}\n\n"
+                                original_content += f"#### {role}\n\n"
                         
                         # Add other contact info in the order they were selected
                         contact_info = []
@@ -456,24 +460,50 @@ def render_cv_builder(data: Dict[str, Any], callbacks: EditorCallbacks) -> None:
                             <head>
                                 <meta charset="UTF-8">
                                 <style>
+                                    @page {{
+                                        size: A4;
+                                    }}
+                                    * {{
+                                        margin: 0;
+                                        padding: 0;
+                                        box-sizing: border-box;
+                                    }}
                                     body {{
-                                        font-family: 'Arial', sans-serif;
-                                        line-height: 1.6;
-                                        max-width: 800px;
-                                        margin: 40px auto;
-                                        padding: 20px;
+                                        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                                        line-height: 1.4;
+                                        
                                         color: #333;
                                     }}
                                     h1 {{
                                         color: #2c3e50;
                                         border-bottom: 2px solid #3498db;
-                                        padding-bottom: 10px;
+                                        padding-bottom: 5px;
+                                        margin-bottom: 5px;
                                     }}
                                     h2 {{
                                         color: #34495e;
-                                        margin-top: 25px;
+                                        margin-top: 15px;
+                                        margin-bottom: 7px;
+                                        font-size: 1.4em;
+                                        border-bottom: 1px solid #bdc3c7;
+                                        padding-bottom: 5px;
                                     }}
                                     h3 {{
+                                        color: #2c3e50;
+                                        margin-top: 10px;
+                                        margin-bottom: 5px;
+                                        font-size: 1.2em;
+                                    }}
+                                    p {{
+                                        margin: 4px 0;
+                                        position: relative;
+                                    }}
+                                    span[style*="float: right"] {{
+                                        float: right;
+                                        color: #7f8c8d;
+                                        font-weight: normal;
+                                    }}
+                                    strong {{
                                         color: #2c3e50;
                                     }}
                                     a {{
